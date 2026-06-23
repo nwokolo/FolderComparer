@@ -113,45 +113,79 @@ public class FolderComparisonService
         {
             var currentDirectory = pendingDirectories.Pop();
 
-            IEnumerable<DirectoryInfo> childDirectories;
+            DirectoryInfo[] childDirectories;
             try
             {
-                childDirectories = currentDirectory.EnumerateDirectories();
+                childDirectories = currentDirectory.GetDirectories();
             }
             catch (UnauthorizedAccessException)
             {
                 continue;
             }
-            catch (DirectoryNotFoundException)
+            catch (IOException)
             {
                 continue;
             }
 
             foreach (var childDirectory in childDirectories)
             {
-                if (IsExcluded(childDirectory.Attributes))
+                if (IsExcludedPath(childDirectory.FullName))
+                    continue;
+
+                FileAttributes attributes;
+                try
+                {
+                    attributes = childDirectory.Attributes;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                catch (IOException)
+                {
+                    continue;
+                }
+
+                if (IsExcluded(attributes))
                     continue;
 
                 pendingDirectories.Push(childDirectory);
             }
 
-            IEnumerable<FileInfo> currentFiles;
+            FileInfo[] currentFiles;
             try
             {
-                currentFiles = currentDirectory.EnumerateFiles();
+                currentFiles = currentDirectory.GetFiles();
             }
             catch (UnauthorizedAccessException)
             {
                 continue;
             }
-            catch (DirectoryNotFoundException)
+            catch (IOException)
             {
                 continue;
             }
 
             foreach (var file in currentFiles)
             {
-                if (IsExcluded(file.Attributes))
+                if (IsExcludedPath(file.FullName))
+                    continue;
+
+                FileAttributes attributes;
+                try
+                {
+                    attributes = file.Attributes;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                catch (IOException)
+                {
+                    continue;
+                }
+
+                if (IsExcluded(attributes))
                     continue;
 
                 string relativePath = file.FullName[(rootLen + 1)..];
@@ -165,7 +199,14 @@ public class FolderComparisonService
     private static bool IsExcluded(FileAttributes attributes)
     {
         return attributes.HasFlag(FileAttributes.Hidden) ||
+               attributes.HasFlag(FileAttributes.System) ||
                attributes.HasFlag(FileAttributes.ReadOnly);
+    }
+
+    private static bool IsExcludedPath(string fullPath)
+    {
+        return fullPath.Contains("\\System Volume Information", StringComparison.OrdinalIgnoreCase) ||
+               fullPath.Contains("\\$RECYCLE.BIN", StringComparison.OrdinalIgnoreCase);
     }
 
     private record FileMetadata(long Size, DateTime LastModified);

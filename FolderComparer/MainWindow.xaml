@@ -24,6 +24,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -58,8 +60,37 @@
             </Grid>
         </GroupBox>
 
+        <!-- Recent Pairs -->
+        <GroupBox Header="Recent Sync Pairs" Grid.Row="2" Padding="8" Margin="0,0,0,4">
+            <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ComboBox ItemsSource="{Binding RecentPairs}"
+                  SelectedItem="{Binding SelectedRecentPair}"
+                  DisplayMemberPath="DisplayText"
+                  IsEnabled="{Binding IsNotComparing}"
+                  MinWidth="380"
+                  VerticalContentAlignment="Center" />
+
+            <Button Content="Use Pair" Grid.Column="1" Margin="8,0,0,0" Padding="12,4"
+                Command="{Binding UseRecentPairCommand}"
+                IsEnabled="{Binding IsNotComparing}" />
+            <Button Content="Compare" Grid.Column="2" Margin="8,0,0,0" Padding="12,4"
+                Command="{Binding CompareRecentPairCommand}"
+                IsEnabled="{Binding IsNotComparing}" />
+            <Button Content="Sync Both" Grid.Column="3" Margin="8,0,0,0" Padding="12,4"
+                Command="{Binding SyncRecentPairCommand}"
+                IsEnabled="{Binding IsNotComparing}" />
+            </Grid>
+        </GroupBox>
+
         <!-- Action Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,8">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,4,0,8">
             <Button Content="Compare" Command="{Binding CompareCommand}"
                     Padding="20,6" FontSize="14" FontWeight="SemiBold" />
             <Button Content="Cancel" Command="{Binding CancelCommand}"
@@ -67,8 +98,37 @@
                     Visibility="{Binding IsComparing, Converter={StaticResource BoolToVis}}" />
         </StackPanel>
 
+        <!-- Sync Options -->
+        <GroupBox Header="Sync Options" Grid.Row="4" Padding="8" Margin="0,0,0,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <CheckBox Content="Overwrite mismatches" IsChecked="{Binding OverwriteMismatches}" 
+                          VerticalAlignment="Center" Margin="0,0,20,0"
+                          IsEnabled="{Binding IsNotComparing}" />
+                
+                <Button Content="Sync Both →" Command="{Binding SyncBidirectionalCommand}"
+                        Padding="12,4" Grid.Column="1" Margin="0,0,8,0"
+                        IsEnabled="{Binding IsNotComparing}" />
+                
+                <Button Content="→ Destination" Command="{Binding SyncSourceToDestCommand}"
+                        Padding="12,4" Grid.Column="2" Margin="0,0,8,0"
+                        IsEnabled="{Binding IsNotComparing}" />
+                
+                <Button Content="← Source" Command="{Binding SyncDestToSourceCommand}"
+                        Padding="12,4" Grid.Column="3"
+                        IsEnabled="{Binding IsNotComparing}" />
+            </Grid>
+        </GroupBox>
+
         <!-- Filters -->
-        <Grid Grid.Row="3" Margin="0,0,0,6">
+        <Grid Grid.Row="5" Margin="0,0,0,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -88,7 +148,7 @@
         </Grid>
 
         <!-- Results DataGrid -->
-        <DataGrid Grid.Row="4" ItemsSource="{Binding Results}"
+        <DataGrid Grid.Row="6" ItemsSource="{Binding Results}"
                   AutoGenerateColumns="False" IsReadOnly="True"
                   SelectionMode="Extended" SelectionUnit="FullRow"
                   GridLinesVisibility="Horizontal" AlternatingRowBackground="#F5F5F5"
@@ -117,7 +177,7 @@
         </DataGrid>
 
         <!-- Status Bar -->
-        <StatusBar Grid.Row="5" Margin="0,6,0,0">
+        <StatusBar Grid.Row="7" Margin="0,6,0,0">
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusText}" />
             </StatusBarItem>
